@@ -1,0 +1,12 @@
+{
+  "name": "gta6-clip-skill",
+  "owner": { "name": "Thomas Pichler" },
+  "plugins": [
+    {
+      "name": "gta6-clip-skill",
+      "source": "./",
+      "description": "GTA-6-Skill: 8 deutsche Skills und ein Befehl (gta6-los) fuer GTA-6-Clipping, mit Nacht-Modus. Laedt nie hoch.",
+      "version": "1.0.0"
+    }
+  ]
+}

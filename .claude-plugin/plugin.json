@@ -1,0 +1,7 @@
+{
+  "name": "gta6-clip-skill",
+  "version": "1.0.0",
+  "description": "GTA-6-Skill: deutsche Claude-Code-Skills fuer GTA-6-Clipping. Kampagnen finden, Trends jagen, 9:16 schneiden, Untertitel, Hook, Titel, Regel-Check und Nacht-Modus. Laedt nie hoch.",
+  "license": "MIT",
+  "keywords": ["gta6", "clipping", "ffmpeg", "faster-whisper", "deutsch"]
+}

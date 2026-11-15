@@ -1,0 +1,6 @@
+probelauf/
+beweis/
+.pytest_cache/
+__pycache__/
+*.pyc
+gta6/
