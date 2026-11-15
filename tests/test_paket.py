@@ -52,6 +52,11 @@ def test_trend_filter_sortierung_und_stand():
     assert [x["id"] for x in trend_jaeger.sortiere(t)] == ["c", "a", "d"]
     assert [x["id"] for x in trend_jaeger.sortiere(t, schon=["c"])] == ["a", "d"]
     assert [x["id"] for x in trend_jaeger.sortiere(t, erlaubt=["eins"])] == ["a"]
+    assert [x["id"] for x in trend_jaeger.sortiere(t, erlaubt=["  EINS "])] == ["a"]
+    # leere Liste erlaubt nichts (frueher: alles)
+    assert trend_jaeger.sortiere(t, erlaubt=[]) == []
+    # Teilstuecke reichen nicht (frueher: "ei" passte auf "Eins" und "Drei")
+    assert trend_jaeger.sortiere(t, erlaubt=["ei"]) == []
     assert "offen" in trend_jaeger.als_text(trend_jaeger.sortiere(t))  # fehlende Zahl bleibt "offen"
 
 
@@ -115,3 +120,13 @@ def test_hook_einblenden_uebernimmt_meta(tmp_path):
     (tmp_path / "c.meta.json").write_text(json.dumps(dict(meta, hook="Alt")), encoding="utf-8")
     assert json.load(open(hook_einblenden.meta_uebernehmen(str(quelle), str(ziel), "Neu")))["hook"] == "Alt"
     assert hook_einblenden.meta_uebernehmen(str(tmp_path / "x.mp4"), str(ziel), "Neu") is None
+
+
+def test_trend_jaeger_erlaubt_datei(tmp_path):
+    skript = os.path.join(WURZEL, "scripts", "trend_jaeger.py")
+    nur_kommentar = tmp_path / "erlaubt.txt"
+    nur_kommentar.write_text("# nur ein Kommentar\n\n", encoding="utf-8")
+    r = subprocess.run([sys.executable, skript, "--erlaubt", str(nur_kommentar)], capture_output=True, text=True)
+    assert r.returncode == 0 and "Nichts erlaubt" in r.stdout and "watch?v=" not in r.stdout
+    r = subprocess.run([sys.executable, skript, "--erlaubt", str(tmp_path / "fehlt.txt")], capture_output=True, text=True)
+    assert r.returncode == 1 and "ABBRUCH" in r.stdout

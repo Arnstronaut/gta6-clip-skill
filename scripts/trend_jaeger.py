@@ -8,6 +8,7 @@ Die Aufrufzahlen kommen direkt von YouTube. Es wird nichts geschaetzt oder erfun
 """
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -42,16 +43,23 @@ def suche(begriff, n):
 BEZUG = re.compile(r"gta\s?(6|vi)\b|grand theft auto (6|vi)\b", re.I)
 
 
-def sortiere(treffer, erlaubt=(), schon=(), nur_gta6=True):
-    """Doppelte raus, bearbeitete raus, optional nur erlaubte Kanaele, absteigend nach Aufrufen."""
+def kanal_key(name):
+    """Kanalname zum Vergleichen: ohne Rand-Leerzeichen, Gross/klein egal, Leerzeichen-Folgen zu einem."""
+    return " ".join(str(name).split()).casefold()
+
+
+def sortiere(treffer, erlaubt=None, schon=(), nur_gta6=True):
+    """Doppelte raus, bearbeitete raus, absteigend nach Aufrufen.
+    erlaubt=None: kein Kanalfilter (nur Ansicht). erlaubt=Liste: nur Kanaele, deren Name GENAU passt
+    (Gross/klein egal). Eine leere Liste erlaubt NICHTS."""
     gesehen, aus = set(), []
-    erl = [e.lower() for e in erlaubt]
+    erl = None if erlaubt is None else {kanal_key(e) for e in erlaubt}
     for t in treffer:
         if not t["id"] or t["id"] in gesehen or t["id"] in schon:
             continue
         if nur_gta6 and not BEZUG.search(t["titel"]):
             continue
-        if erl and not any(e in t["kanal"].lower() for e in erl):
+        if erl is not None and kanal_key(t["kanal"]) not in erl:
             continue
         gesehen.add(t["id"])
         aus.append(t)
@@ -82,13 +90,20 @@ def main():
     a = p.parse_args()
     begriffe = a.suche or ["GTA 6 clip"]
     alle = [t for b in begriffe for t in suche(b, a.anzahl)]
-    erlaubt = [z.strip() for z in open(a.erlaubt, encoding="utf-8")] if a.erlaubt else []
-    erlaubt = [e for e in erlaubt if e and not e.startswith("#")]
+    erlaubt = None
+    if a.erlaubt:
+        if not os.path.exists(a.erlaubt):
+            print(f"ABBRUCH: Erlaubt-Liste {a.erlaubt} fehlt. Ohne Liste ist nichts erlaubt.")
+            return 1
+        erlaubt = [z.strip() for z in open(a.erlaubt, encoding="utf-8")]
+        erlaubt = [e for e in erlaubt if e and not e.startswith("#")]
+        if not erlaubt:
+            print(f"Nichts erlaubt: {a.erlaubt} enthaelt keinen Kanal. Es wird nichts vorgeschlagen.")
+            return 0
     schon = json.load(open(a.stand, encoding="utf-8")) if a.stand else []
     text = als_text(sortiere(alle, erlaubt, schon, not a.alle)[: a.anzahl])
     print(text)
     if a.ausgabe:
-        import os
         os.makedirs(os.path.dirname(os.path.abspath(a.ausgabe)), exist_ok=True)
         open(a.ausgabe, "w", encoding="utf-8").write(text + "\n")
     return 0

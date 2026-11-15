@@ -61,7 +61,7 @@ Bei beiden Wegen heißt der Befehl `/gta6-clip-skill:gta6-los`. Die Skills finde
 1. Öffne Claude Code in einem leeren Ordner für dein Clipping-Projekt.
 2. **Kampagnen suchen:** "Finde laufende GTA-6-Clipping-Kampagnen."
    Ergebnis: `gta6/kampagnen.md`.
-3. **Erlaubnis festhalten:** Schreibe in `gta6/erlaubt.txt` die Kanäle, deren Videos eine Kampagne oder der Rechteinhaber zum Schneiden freigibt (eine Zeile pro Kanal).
+3. **Erlaubnis festhalten:** Schreibe in `gta6/erlaubt.txt` die Kanäle, deren Videos eine Kampagne oder der Rechteinhaber zum Schneiden freigibt (eine Zeile pro Kanal, voller Kanalname wie auf YouTube; Teilstücke zählen nicht).
 4. **Ein Clip:** `/gta6-clip-skill:gta6-los` (oder mit Link: `/gta6-clip-skill:gta6-los https://youtube.com/watch?v=... ab 1:20`).
    Ergebnis in `gta6/morgen/`: der Clip als `.mp4`, dazu eine `.meta.json` mit Hook, Titel und Hashtags.
 5. Sieh dir den Clip an. Wenn er passt, lädst **du** ihn hoch oder reichst ihn ein.

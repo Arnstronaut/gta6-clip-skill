@@ -8,7 +8,7 @@ description: Lässt die ganze GTA-6-Kette über Nacht wiederholt laufen (Trend f
 Der Nacht-Modus ruft den Befehl `gta6-los` immer wieder auf. Er lädt nie hoch und reicht nie ein. Am Morgen liegen die Clips in `gta6/morgen/`, du prüfst und lädst selbst hoch.
 
 ## Vorbereitung (einmal, vor dem Schlafengehen)
-1. `gta6/erlaubt.txt` anlegen: eine Zeile pro Kanal, dessen Videos eine Kampagne oder der Rechteinhaber zum Schneiden erlaubt. **Ohne diese Datei macht der Nacht-Modus nichts.**
+1. `gta6/erlaubt.txt` anlegen: eine Zeile pro Kanal, dessen Videos eine Kampagne oder der Rechteinhaber zum Schneiden erlaubt. Voller Kanalname wie auf YouTube, Teilstücke zählen nicht. **Ohne diese Datei oder ohne Kanal darin macht der Nacht-Modus nichts.**
 2. Optional `gta6/kampagne-<name>.json` (Regeln, siehe `gta6-regel-check`).
 3. Rechner an Strom, Ruhezustand aus, Claude Code geöffnet lassen.
 

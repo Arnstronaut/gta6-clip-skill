@@ -13,7 +13,7 @@ Das Skript fragt YouTube öffentlich über `yt-dlp` ab (kein Login) und liefert 
    ```
    python scripts/trend_jaeger.py --suche "GTA 6 clip" --suche "GTA 6 stream" --suche "GTA 6 reaction" --anzahl 10 --ausgabe gta6/trends.txt
    ```
-   - Nur erlaubte Kanäle: `--erlaubt gta6/erlaubt.txt` (eine Zeile = ein Kanalname, `#` = Kommentar)
+   - Nur erlaubte Kanäle: `--erlaubt gta6/erlaubt.txt` (eine Zeile = ein Kanalname, `#` = Kommentar). Der Name muss **genau** stimmen (Groß/klein egal), Teilstücke zählen nicht. Eine Liste ohne Kanal erlaubt nichts.
    - Schon bearbeitete weglassen: `--stand gta6/nacht-stand.json`
    - Auf Mac `python3` statt `python`.
 3. Lies die Liste und sortiere von Hand aus: Livestream-Marathons (mehrere Stunden), reine Trailer-Neuuploads und Treffer ohne echtes Spiel-Material sind kein Clip-Futter.
