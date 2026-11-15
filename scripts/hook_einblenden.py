@@ -1,8 +1,10 @@
 """Hook-Text oben ins Bild einblenden (erste Sekunden), mit ffmpeg drawtext.
 
 Beispiel: python hook_einblenden.py --eingabe clip.mp4 --text "HAST DU DAS GESEHEN?" --ausgabe clip_hook.mp4 [--sekunden 3]
+Die .meta.json des Eingangsclips wird zum neuen Clip mitkopiert (clip_hook.meta.json), damit der Regel-Check sie findet.
 """
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -26,6 +28,20 @@ def filter_text(textdatei, schrift, sekunden):
             f"line_spacing=10:x=(w-text_w)/2:y=150:enable='lt(t,{sekunden})'")
 
 
+def meta_uebernehmen(eingabe, ausgabe, text):
+    """Kopiert <eingabe>.meta.json nach <ausgabe>.meta.json. Leerer Hook wird mit dem eingeblendeten Text gefuellt."""
+    quelle = os.path.splitext(eingabe)[0] + ".meta.json"
+    ziel = os.path.splitext(ausgabe)[0] + ".meta.json"
+    if not os.path.exists(quelle) or os.path.abspath(quelle) == os.path.abspath(ziel):
+        return None
+    meta = json.load(open(quelle, encoding="utf-8"))
+    if not str(meta.get("hook", "")).strip():
+        meta["hook"] = text.strip()
+    meta["hook_im_bild"] = True
+    open(ziel, "w", encoding="utf-8").write(json.dumps(meta, ensure_ascii=False, indent=2))
+    return ziel
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--eingabe", required=True)
@@ -43,7 +59,8 @@ def main():
                         "-vf", filter_text("hook.txt", schrift, a.sekunden), "-c:v", "libx264", "-crf", "20",
                         "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", os.path.abspath(a.ausgabe)],
                        cwd=d, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-    print(f"fertig: {a.ausgabe}")
+    meta = meta_uebernehmen(a.eingabe, a.ausgabe, a.text)
+    print(f"fertig: {a.ausgabe}" + (f" (meta: {meta})" if meta else " (keine .meta.json zum Eingangsclip gefunden)"))
     return 0
 
 

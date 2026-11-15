@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(WURZEL, "scripts"))
 
 import clip_schneider  # noqa: E402
 import gemeinsam  # noqa: E402
+import hook_einblenden  # noqa: E402
 import regelcheck  # noqa: E402
 import trend_jaeger  # noqa: E402
 import untertitel  # noqa: E402
@@ -91,3 +92,26 @@ def test_regelcheck():
     texte = [t for ok, t in regelcheck.pruefe(schlecht, meta2, {"pflicht_hashtags": ["#kampagne"]}) if not ok]
     assert len(texte) == 5
     assert any("erlaubt_durch" in t for t in texte)
+
+
+def test_hook_einblenden_uebernimmt_meta(tmp_path):
+    quelle = tmp_path / "c.mp4"
+    subprocess.run(["ffmpeg", "-y", "-f", "lavfi", "-i", "testsrc=size=1080x1920:rate=30:duration=2",
+                    "-f", "lavfi", "-i", "sine=frequency=440:duration=2", "-shortest", "-pix_fmt", "yuv420p",
+                    str(quelle)], check=True, capture_output=True)
+    meta = {"erlaubt_durch": "Kampagne X", "hook": "", "titel": {"shorts": "GTA 6 Test"}, "hashtags": ["#gta6"]}
+    (tmp_path / "c.meta.json").write_text(json.dumps(meta), encoding="utf-8")
+    ziel = tmp_path / "c_hook.mp4"
+    r = subprocess.run([sys.executable, os.path.join(WURZEL, "scripts", "hook_einblenden.py"), "--eingabe", str(quelle),
+                        "--text", "Warte bis zum Ende", "--ausgabe", str(ziel)], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    neu = json.loads((tmp_path / "c_hook.meta.json").read_text(encoding="utf-8"))
+    assert neu["hook"] == "Warte bis zum Ende" and neu["hook_im_bild"] is True
+    assert neu["erlaubt_durch"] == "Kampagne X"
+    gut = {"breite": 1080, "hoehe": 1920, "dauer": 30.0, "codec": "h264", "ton": True}
+    assert all(ok for ok, _ in regelcheck.pruefe(gut, neu))
+    assert gemeinsam.ffprobe(ziel)["hoehe"] == 1920
+    # vorhandener Hook bleibt stehen; ohne Quell-meta passiert nichts
+    (tmp_path / "c.meta.json").write_text(json.dumps(dict(meta, hook="Alt")), encoding="utf-8")
+    assert json.load(open(hook_einblenden.meta_uebernehmen(str(quelle), str(ziel), "Neu")))["hook"] == "Alt"
+    assert hook_einblenden.meta_uebernehmen(str(tmp_path / "x.mp4"), str(ziel), "Neu") is None

@@ -24,4 +24,5 @@ Mit dem Skript (setzt den Text in den ersten 3 Sekunden oben ins Bild, Umlaute g
 ```
 python scripts/hook_einblenden.py --eingabe clip.mp4 --text "DEIN HOOK" --ausgabe clip_hook.mp4
 ```
+Das Skript kopiert die `.meta.json` mit (`clip_hook.meta.json`), damit der Regel-Check auf den Clip mit Hook passt.
 Alternativ blendet der Mensch den Text in seiner Schnitt-App ein.
